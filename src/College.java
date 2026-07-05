@@ -60,6 +60,18 @@ public class College {
         return null;
     }
 
+    public void checkMinimumDoctors(int required) throws ManagementException {
+        int drCount = 0;
+        for (int i = 0; i < lecturersCount; i++) {
+            if (lecturers[i] instanceof Dr) {
+                drCount++;
+            }
+        }
+        if (drCount < required) {
+            throw new ManagementException("- Not enough Doctors/Professors in the system to perform this action. Required: " + required);
+        }
+    }
+
     public double getAverageWage() {
         if (lecturersCount == 0) return 0;
         double wage = 0;
@@ -125,6 +137,12 @@ public class College {
             details += committees[i].toString() + "\n";
         }
         return details;
+    }
+
+    public void checkMinimumCommittees(int required) throws ManagementException {
+        if (this.committeesCount < required) {
+            throw new ManagementException("- Not enough committees in the system to perform this action. Required: " + required);
+        }
     }
 
     public void addDepartment(String departmentName, int studentCount) throws ManagementException {

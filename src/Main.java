@@ -45,8 +45,14 @@ public class Main {
                         break;
 
                     case 1:
-                        System.out.print("Please provide a name: ");
-                        lecturerName = scanner.nextLine();
+                        while (true) {
+                            System.out.print("Please provide a name: ");
+                            lecturerName = scanner.nextLine();
+                            if (lecturerName.length() >= 3) {
+                                break;
+                            }
+                            System.out.println("[Error] Name must be at least 3 characters long. Please try again.");
+                        }
 
                         while (true) {
                             System.out.print("Please provide an id (9 digits): ");
@@ -237,6 +243,8 @@ public class Main {
                         break;
 
                     case 12:
+                        college.checkMinimumDoctors(1);
+
                         Lecturer lecturer;
                         while (true) {
                             System.out.println("Provide the name of the lecturer: ");
@@ -262,6 +270,8 @@ public class Main {
                         break;
 
                     case 13:
+                        college.checkMinimumDoctors(2);
+
                         String firstName, secondName;
                         Lecturer firstLecturer, secondLecturer;
 
@@ -280,6 +290,12 @@ public class Main {
                         while (true) {
                             System.out.println("Provide the name of the second lecturer you want to compare: ");
                             secondName = scanner.nextLine();
+
+                            if (secondName.equals(firstName)) {
+                                System.out.println("[Error] Cannot compare a lecturer to themselves. Please choose a different one.");
+                                continue;
+                            }
+
                             secondLecturer = college.getLecturerByName(secondName);
 
                             if (!(secondLecturer instanceof Dr)) {
@@ -304,6 +320,8 @@ public class Main {
                         break;
 
                     case 14:
+                        college.checkMinimumCommittees(2);
+
                         String firstCommitteeName, secondCommitteeName;
                         Committee firstCommittee, secondCommittee;
 
@@ -322,6 +340,12 @@ public class Main {
                         while (true) {
                             System.out.println("Provide the name of the second Committee you want to compare: ");
                             secondCommitteeName = scanner.nextLine();
+
+                            if (secondCommitteeName.equals(firstCommitteeName)) {
+                                System.out.println("[Error] Cannot compare a committee to itself. Please choose a different one.");
+                                continue;
+                            }
+
                             secondCommittee = college.getCommitteeByName(secondCommitteeName);
 
                             if (secondCommittee == null){
@@ -369,6 +393,7 @@ public class Main {
                         break;
 
                     case 15:
+                        college.checkMinimumCommittees(1);
                         while (true) {
                             System.out.println("Provide the name of the committee you want to clone: ");
                             committeeName = scanner.nextLine();
