@@ -1,6 +1,6 @@
 public class Dr extends Lecturer implements Comparable<Dr> {
-    protected String[] articles = new String[2];
-    protected int articlesCount = 0;
+    private String[] articles = new String[2];
+    private int articlesCount = 0;
 
     public Dr(String name, int id, String degreeName, int wage) throws ManagementException {
         super(name, id, 3, degreeName, wage);

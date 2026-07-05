@@ -1,12 +1,12 @@
 public class Lecturer {
-    protected String name;
-    protected int id;
-    protected int wage;
-    protected Title degree;
-    protected String degreeName;
-    protected Department department;
-    protected Committee[] committees = new Committee[2];
-    protected int committeeCount = 0;
+    private String name;
+    private int id;
+    private int wage;
+    private Title degree;
+    private String degreeName;
+    private Department department;
+    private Committee[] committees = new Committee[2];
+    private int committeeCount = 0;
 
     public Lecturer(String name, int id, int level, String degreeName, int wage) throws ManagementException {
         setName(name);
