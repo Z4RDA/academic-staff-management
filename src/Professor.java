@@ -1,4 +1,6 @@
-public class Professor extends Dr {
+import java.io.Serializable;
+
+public class Professor extends Dr implements Serializable {
     private String awardingInstitution;
 
     public Professor(String name, int id, String degreeName, int wage, String awardingInstitution) throws ManagementException {

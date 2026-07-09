@@ -1,4 +1,6 @@
-public class Committee implements Cloneable {
+import java.io.Serializable;
+
+public class Committee implements Cloneable, Serializable {
     private String name;
     private Dr headOfCommittee; // שונה מ-Lecturer ל-Dr
     private Lecturer[] lecturers = new Lecturer[2];

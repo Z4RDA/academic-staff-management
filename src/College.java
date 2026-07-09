@@ -1,4 +1,6 @@
-public class College {
+import java.io.Serializable;
+
+public class College implements Serializable {
     private String name;
     private Lecturer[] lecturers = new Lecturer[2];
     private Committee[] committees = new Committee[2];

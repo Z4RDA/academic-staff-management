@@ -1,4 +1,6 @@
-public class Dr extends Lecturer implements Comparable<Dr> {
+import java.io.Serializable;
+
+public class Dr extends Lecturer implements Comparable<Dr> , Serializable {
     private String[] articles = new String[2];
     private int articlesCount = 0;
 

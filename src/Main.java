@@ -1,3 +1,5 @@
+import java.io.*;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 // Semyon Galitsky - 213863319
 // Dor Mendelovich - 214289613
@@ -8,13 +10,59 @@ public class Main {
         int choice, count, wage, id, title;
         String lecturerName, degreeName, committeeName, departmentName;
 
-        System.out.println("Please provide the college name: ");
-        College college = new College(scanner.nextLine());
-        System.out.println("Starting system for: " + college.getName());
+        College college = null;
+        File file = new File("college_data.dat");
+        if (file.exists()) {
+            System.out.println("College data file detected");
+            while(true) {
+                try {
+                    System.out.println("Load file?\n    [1] - Yes\n    [2] - No");
+                    System.out.println("*No will overwrite the saved data");
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // buffer
+                    if(choice < 1 || choice > 2) {
+                        System.out.print("[Error] choice out of range: ");
+                        continue;
+                    }
+                    break;
+                } catch (java.util.InputMismatchException e) {
+                    System.out.println("--- Action Failed (Input Mismatch) ---\n" + e.getMessage());
+                    scanner.nextLine(); //buffer
+                }
+            }
+
+            switch (choice) {
+                case 1:
+                    try {
+                        ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(file));
+                        college = (College) inFile.readObject();
+                        inFile.close();
+                        System.out.println("[Success] College data loaded successfully");
+                        System.out.println("Initiating System for [" + college.getName() + "]...");
+                    } catch (FileNotFoundException e) {
+                        System.out.println("[Error] College data file not found");
+                    } catch (IOException e) {
+                        System.out.println("[Error] College data file could not be read");
+                    } catch (ClassNotFoundException e) {
+                        System.out.println("[Error] Class not found during deserialization");
+                    }
+                    break;
+                case 2:
+                    System.out.println("Initiating System...");
+                    System.out.println("Please provide the college name: ");
+                    college = new College(scanner.nextLine());
+                    System.out.println("Starting system for: " + college.getName());
+                    break;
+            }
+        } else {
+            System.out.println("Please provide the college name: ");
+            college = new College(scanner.nextLine());
+            System.out.println("Starting system for: " + college.getName());
+        }
 
         do {
             System.out.println("-----------------------------------------------------------------------------------");
-            System.out.println("                                      MENU                                       ");
+            System.out.println("                                      MENU - " + college.getName());
             System.out.println("-----------------------------------------------------------------------------------");
             System.out.println("[0] - Exit");
             System.out.println("[1] - Add lecturer / Dr / Professor");
@@ -41,7 +89,17 @@ public class Main {
             try {
                 switch (choice) {
                     case 0:
-                        System.out.println("Exit selected, shutting system down.");
+                        System.out.println("Exit selected, saving data.");
+                        try{
+                            ObjectOutputStream outFile = new ObjectOutputStream(new FileOutputStream("college_data.dat"));
+                            outFile.writeObject(college);
+                            outFile.close();
+                            System.out.println("[Success] System state saved successfully");
+                            System.out.println("Shutting down system...");
+
+                        } catch (Exception e){
+                            System.out.println("[Error] Failed to save data: " + e.getMessage());
+                        }
                         break;
 
                     case 1:
@@ -115,6 +173,7 @@ public class Main {
                         break;
 
                     case 2:
+                        college.checkMinimumDoctors(1);
                         while (true) {
                             System.out.print("Please provide the name of the committee you wish to add: ");
                             committeeName = scanner.nextLine();
@@ -412,7 +471,10 @@ public class Main {
                     default:
                         System.out.println("--- Action Failed ---\nInput out of range. Must be between 0 and 15.");
                 }
-            } catch (MemberAlreadyInCommitteeException e) {
+            }catch (java.util.InputMismatchException e) {
+                System.out.println("--- Action Failed (Input Mismatch) ---\n" + e.getMessage());
+                scanner.nextLine(); //buffer
+            }catch (MemberAlreadyInCommitteeException e) {
                 System.out.println("--- Action Failed (Committee Membership Error) ---\n" + e.getMessage());
             } catch (ManagementException e) {
                 System.out.println("--- Action Failed (System Error) ---\n" + e.getMessage());
@@ -421,6 +483,7 @@ public class Main {
             } catch (Exception e) {
                 System.out.println("--- Unexpected Error ---\n" + e.getMessage());
             }
+
 
             if (choice != 0) {
                 System.out.println("\nPress enter to continue");
