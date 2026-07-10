@@ -1,10 +1,10 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Department implements Serializable {
     private String name;
     private int studentCount;
-    private Lecturer[] lecturers = new Lecturer[2];
-    private int lecturerCount = 0;
+    private ArrayList<Lecturer> lecturers = new ArrayList<>();
 
     public Department(String name, int studentCount) throws ManagementException {
         setName(name);
@@ -32,46 +32,35 @@ public class Department implements Serializable {
             throw new ManagementException("- Lecturer already part of a department.");
         }
 
-        if (lecturerCount == lecturers.length) {
-            Lecturer[] newLecturers = new Lecturer[lecturerCount * 2];
-            for (int i = 0; i < lecturerCount; i++) {
-                newLecturers[i] = lecturers[i];
-            }
-            lecturers = newLecturers;
-        }
-        lecturers[lecturerCount] = lecturer;
-        lecturerCount++;
+        lecturers.add(lecturer);
         lecturer.setDepartment(this);
     }
 
     public double getAverageWage() {
-        if (lecturerCount == 0) return 0;
+        if (lecturers.isEmpty()) return 0;
 
         double sum = 0;
-        for (int i = 0; i < lecturerCount; i++) {
-            sum += lecturers[i].getWage();
+        for (Lecturer lecturer : lecturers) {
+            sum += lecturer.getWage();
         }
-        return sum / lecturerCount;
+        return sum / lecturers.size();
     }
-
 
     public boolean equals(Object obj) {
         if (!(obj instanceof Department)) return false;
         return this.name.equals(((Department) obj).name);
-
     }
 
     public String toString() {
         String str = "Name: " + name + "\n" +
                 "   Numbers of students: " + studentCount + "\n";
 
-        if (lecturerCount > 0) {
+        if (!lecturers.isEmpty()) {
             str += "    Lecturers: \n";
-            for (int i = 0; i < lecturerCount; i++) {
-                str += "        " + lecturers[i].getName() + "\n";
+            for (Lecturer lecturer : lecturers) {
+                str += "        " + lecturer.getName() + "\n";
             }
         }
         return str;
     }
-
 }

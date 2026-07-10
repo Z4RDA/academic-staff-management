@@ -200,7 +200,23 @@ public class Main {
                             break;
                         }
 
-                        college.addCommittee(committeeName, lecturerName);
+                        int committeeType;
+                        while (true) {
+                            System.out.println("Please select the type of members allowed in this committee:");
+                            System.out.println("    [1] - Regular degrees only (Bachelors / Masters)");
+                            System.out.println("    [2] - Doctors only");
+                            System.out.println("    [3] - Professors only");
+                            committeeType = scanner.nextInt();
+                            scanner.nextLine(); // buffer
+
+                            if (committeeType < 1 || committeeType > 3) {
+                                System.out.println("[Error] Invalid choice. Must be between 1 and 3.");
+                                continue;
+                            }
+                            break;
+                        }
+
+                        college.addCommittee(committeeName, lecturerName, committeeType);
                         System.out.println("[Success] Committee " + committeeName + " was successfully added.");
                         break;
 

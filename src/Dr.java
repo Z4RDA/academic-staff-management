@@ -1,31 +1,23 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 
-public class Dr extends Lecturer implements Comparable<Dr> , Serializable {
-    private String[] articles = new String[2];
-    private int articlesCount = 0;
+public class Dr extends Lecturer implements Comparable<Dr>, Serializable {
+    private ArrayList<String> articles = new ArrayList<>();
 
     public Dr(String name, int id, String degreeName, int wage) throws ManagementException {
         super(name, id, 3, degreeName, wage);
     }
 
     public void addArticle(String article) {
-        if (articlesCount == articles.length) {
-            String[] newArticles = new String[articlesCount * 2];
-            for (int i = 0; i < articlesCount; i++) {
-                newArticles[i] = articles[i];
-            }
-            articles = newArticles;
-        }
-        articles[articlesCount] = article;
-        articlesCount++;
+        articles.add(article);
     }
 
     public int getArticlesCount() {
-        return articlesCount;
+        return articles.size();
     }
 
     public int compareTo(Dr other) {
-        return this.articlesCount - other.articlesCount;
+        return this.getArticlesCount() - other.getArticlesCount();
     }
 
     public boolean equals(Object obj) {
@@ -37,10 +29,10 @@ public class Dr extends Lecturer implements Comparable<Dr> , Serializable {
     public String toString() {
         String str = super.toString();
 
-        if (articlesCount > 0) {
+        if (!articles.isEmpty()) {
             str += "    Articles: \n";
-            for (int i = 0; i < articlesCount; i++) {
-                str += "        - " + articles[i] + "\n";
+            for (String article : articles) {
+                str += "        - " + article + "\n";
             }
         }
         return str;

@@ -1,13 +1,11 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class College implements Serializable {
     private String name;
-    private Lecturer[] lecturers = new Lecturer[2];
-    private Committee[] committees = new Committee[2];
-    private Department[] departments = new Department[2];
-    private int lecturersCount = 0;
-    private int committeesCount = 0;
-    private int departmentsCount = 0;
+    private ArrayList<Lecturer> lecturers = new ArrayList<>();
+    private ArrayList<Committee> committees = new ArrayList<>();
+    private ArrayList<Department> departments = new ArrayList<>();
 
     public College(String name) {
         this.name = name;
@@ -26,37 +24,28 @@ public class College implements Serializable {
             throw new ManagementException("- Lecturer already exists.");
         }
 
-        for (int i = 0; i < lecturersCount; i++) {
-            if (lecturer.getId() == lecturers[i].getId()) {
+        for (Lecturer l : lecturers) {
+            if (lecturer.getId() == l.getId()) {
                 throw new ManagementException("- ID already taken, must be unique.");
             }
         }
 
-        if (lecturers.length == lecturersCount) {
-            Lecturer[] newLecturers = new Lecturer[lecturersCount * 2];
-            for (int i = 0; i < lecturersCount; i++) {
-                newLecturers[i] = lecturers[i];
-            }
-            lecturers = newLecturers;
-        }
-
-        lecturers[lecturersCount] = lecturer;
-        lecturersCount++;
+        lecturers.add(lecturer);
     }
 
     public Lecturer getLecturerByName(String name) {
-        for (int i = 0; i < lecturersCount; i++) {
-            if (lecturers[i].getName().equals(name)) {
-                return lecturers[i];
+        for (Lecturer lecturer : lecturers) {
+            if (lecturer.getName().equals(name)) {
+                return lecturer;
             }
         }
         return null;
     }
 
     public Lecturer getLecturerById(int id) {
-        for (int i = 0; i < lecturersCount; i++) {
-            if (lecturers[i].getId() == id) {
-                return lecturers[i];
+        for (Lecturer lecturer : lecturers) {
+            if (lecturer.getId() == id) {
+                return lecturer;
             }
         }
         return null;
@@ -64,8 +53,8 @@ public class College implements Serializable {
 
     public void checkMinimumDoctors(int required) throws ManagementException {
         int drCount = 0;
-        for (int i = 0; i < lecturersCount; i++) {
-            if (lecturers[i] instanceof Dr) {
+        for (Lecturer lecturer : lecturers) {
+            if (lecturer instanceof Dr) {
                 drCount++;
             }
         }
@@ -75,24 +64,24 @@ public class College implements Serializable {
     }
 
     public double getAverageWage() {
-        if (lecturersCount == 0) return 0;
+        if (lecturers.isEmpty()) return 0;
         double wage = 0;
-        for (int i = 0; i < lecturersCount; i++) {
-            wage += lecturers[i].getWage();
+        for (Lecturer lecturer : lecturers) {
+            wage += lecturer.getWage();
         }
-        return wage / lecturersCount;
+        return wage / lecturers.size();
     }
 
     public String getAllLecturersDetails() {
-        if (lecturersCount == 0) return "";
+        if (lecturers.isEmpty()) return "";
         String details = "";
-        for (int i = 0; i < lecturersCount; i++) {
-            details += lecturers[i].toString() + "\n";
+        for (Lecturer lecturer : lecturers) {
+            details += lecturer.toString() + "\n";
         }
         return details;
     }
 
-    public void addCommittee(String committeeName, String headLecturerName) throws ManagementException, MemberAlreadyInCommitteeException {
+    public void addCommittee(String committeeName, String headLecturerName, int type) throws ManagementException, MemberAlreadyInCommitteeException {
         if (committeeName.length() < 3) {
             throw new ManagementException("- Committee Name is not valid, must be at least 3 letters.");
         }
@@ -110,39 +99,35 @@ public class College implements Serializable {
             throw new ManagementException("- Lecturer " + headLecturerName + " is not qualified. Requirements: DR or PROFESSOR.");
         }
 
-        if (committees.length == committeesCount) {
-            Committee[] newCommittees = new Committee[committeesCount * 2];
-            for (int i = 0; i < committeesCount; i++) {
-                newCommittees[i] = committees[i];
-            }
-            committees = newCommittees;
+        if (type == 1) {
+            committees.add(new Committee<Lecturer>(committeeName, (Dr) headOfCommittee));
+        } else if (type == 2) {
+            committees.add(new Committee<Dr>(committeeName, (Dr) headOfCommittee));
+        } else if (type == 3) {
+            committees.add(new Committee<Professor>(committeeName, (Dr) headOfCommittee));
         }
-
-        Committee committee = new Committee(committeeName, (Dr) headOfCommittee);
-        committees[committeesCount] = committee;
-        committeesCount++;
     }
 
     public Committee getCommitteeByName(String name) {
-        for (int i = 0; i < committeesCount; i++) {
-            if (committees[i].getName().equals(name)) {
-                return committees[i];
+        for (Committee committee : committees) {
+            if (committee.getName().equals(name)) {
+                return committee;
             }
         }
         return null;
     }
 
     public String getAllCommitteesDetails() {
-        if (committeesCount == 0) return "";
+        if (committees.isEmpty()) return "";
         String details = "";
-        for (int i = 0; i < committeesCount; i++) {
-            details += committees[i].toString() + "\n";
+        for (Committee committee : committees) {
+            details += committee.toString() + "\n";
         }
         return details;
     }
 
     public void checkMinimumCommittees(int required) throws ManagementException {
-        if (this.committeesCount < required) {
+        if (committees.size() < required) {
             throw new ManagementException("- Not enough committees in the system to perform this action. Required: " + required);
         }
     }
@@ -156,23 +141,13 @@ public class College implements Serializable {
             throw new ManagementException("- Department already exists.");
         }
 
-        if (departments.length == departmentsCount) {
-            Department[] newDepartments = new Department[departmentsCount * 2];
-            for (int i = 0; i < departmentsCount; i++) {
-                newDepartments[i] = departments[i];
-            }
-            departments = newDepartments;
-        }
-
-        Department department = new Department(departmentName, studentCount);
-        departments[departmentsCount] = department;
-        departmentsCount++;
+        departments.add(new Department(departmentName, studentCount));
     }
 
     public Department getDepartmentByName(String name) {
-        for (int i = 0; i < departmentsCount; i++) {
-            if (departments[i].getName().equals(name)) {
-                return departments[i];
+        for (Department department : departments) {
+            if (department.getName().equals(name)) {
+                return department;
             }
         }
         return null;
@@ -233,17 +208,8 @@ public class College implements Serializable {
     public void cloneCommittee(String committeeName) throws ManagementException, CloneNotSupportedException {
         Committee orig = getCommitteeByName(committeeName);
         if (orig == null) throw new ManagementException("- Committee not found.");
-        Committee clonedCommittee = orig.clone();
 
-        if (committees.length == committeesCount) {
-            Committee[] newCommittees = new Committee[committeesCount * 2];
-            for (int i = 0; i < committeesCount; i++) {
-                newCommittees[i] = committees[i];
-            }
-            committees = newCommittees;
-        }
-            committees[committeesCount] = clonedCommittee;
-            committeesCount++;
+        committees.add(orig.clone());
     }
 
     public boolean equals(Object obj) {
@@ -252,10 +218,9 @@ public class College implements Serializable {
     }
 
     public String toString() {
-        String str = "Name: " + name + "\n" +
-                "   Number of lecturers " + lecturersCount + "\n"+
-                "   Number of Committees "+ committeesCount + "\n"+
-                "   Number of Departments "+ departmentsCount + "\n";
-        return str;
+        return "Name: " + name + "\n" +
+                "   Number of lecturers " + lecturers.size() + "\n"+
+                "   Number of Committees "+ committees.size() + "\n"+
+                "   Number of Departments "+ departments.size() + "\n";
     }
 }

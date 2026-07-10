@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Lecturer implements Serializable {
     private String name;
@@ -7,8 +8,8 @@ public class Lecturer implements Serializable {
     private Title degree;
     private String degreeName;
     private Department department;
-    private Committee[] committees = new Committee[2];
-    private int committeeCount = 0;
+
+    private ArrayList<Committee<? extends Lecturer>> committees = new ArrayList<>();
 
     public Lecturer(String name, int id, int level, String degreeName, int wage) throws ManagementException {
         setName(name);
@@ -67,7 +68,6 @@ public class Lecturer implements Serializable {
     }
     public Department getDepartment() { return department; }
 
-
     public String toString() {
         String str = "Name: " + name + "\n" +
                 "   Id: " + id + "\n" +
@@ -79,56 +79,31 @@ public class Lecturer implements Serializable {
             str += "    Department: " + department.getName() + "\n";
         }
 
-        if (committeeCount > 0) {
+        if (!committees.isEmpty()) {
             str += "    Committees: \n";
-            for (int i = 0; i < committeeCount; i++) {
-                str += "        " + committees[i].getName() + "\n";
+            for (Committee<? extends Lecturer> committee : committees) {
+                str += "        " + committee.getName() + "\n";
             }
         }
         return str;
     }
 
-    protected boolean hasCommittee(Committee committee) {
-        for (int i = 0; i < committeeCount; i++) {
-            if (committees[i] == committee) return true;
-        }
-        return false;
+    protected boolean hasCommittee(Committee<? extends Lecturer> committee) {
+        return committees.contains(committee);
     }
 
-    public void addCommittee(Committee committee) throws MemberAlreadyInCommitteeException {
+    public void addCommittee(Committee<? extends Lecturer> committee) throws MemberAlreadyInCommitteeException {
         if (hasCommittee(committee)) {
             throw new MemberAlreadyInCommitteeException("- Lecturer already part of committee.");
         }
-
-        if (committeeCount == committees.length) {
-            Committee[] newCommittees = new Committee[committeeCount * 2];
-            for (int i = 0; i < committeeCount; i++) {
-                newCommittees[i] = committees[i];
-            }
-            committees = newCommittees;
-        }
-        committees[committeeCount] = committee;
-        committeeCount++;
+        committees.add(committee);
     }
 
-    public void removeCommittee(Committee committee) throws ManagementException {
+    public void removeCommittee(Committee<? extends Lecturer> committee) throws ManagementException {
         if (!hasCommittee(committee)) {
             throw new ManagementException("- Lecturer not in committee.");
         }
-
-        int indexToRemove = -1;
-        for (int i = 0; i < committeeCount; i++) {
-            if (committees[i] == committee) {
-                indexToRemove = i;
-                break;
-            }
-        }
-
-        for (int i = indexToRemove; i < committeeCount - 1; i++) {
-            committees[i] = committees[i + 1];
-        }
-        committees[committeeCount - 1] = null;
-        committeeCount--;
+        committees.remove(committee);
     }
 
     public boolean equals(Object obj) {

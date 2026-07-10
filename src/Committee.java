@@ -1,10 +1,11 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 
-public class Committee implements Cloneable, Serializable {
+public class Committee<T extends Lecturer> implements Cloneable, Serializable {
     private String name;
-    private Dr headOfCommittee; // שונה מ-Lecturer ל-Dr
-    private Lecturer[] lecturers = new Lecturer[2];
-    private int lecturerCount = 0;
+    private Dr headOfCommittee;
+
+    private ArrayList<T> lecturers = new ArrayList<>();
 
     public Committee(String name, Dr headOfCommittee) throws MemberAlreadyInCommitteeException {
         setName(name);
@@ -25,25 +26,22 @@ public class Committee implements Cloneable, Serializable {
     public Dr getHeadOfCommittee() { return headOfCommittee; }
 
     public int getMembersCount() {
-        return lecturerCount + 1;
+        return lecturers.size() + 1;
     }
 
     public int getTotalArticles() {
         int total = this.headOfCommittee.getArticlesCount();
 
-        for (int i = 0; i < lecturerCount; i++) {
-            if (lecturers[i] instanceof Dr) {
-                total += ((Dr) lecturers[i]).getArticlesCount();
+        for (T lecturer : lecturers) {
+            if (lecturer instanceof Dr) {
+                total += ((Dr) lecturer).getArticlesCount();
             }
         }
         return total;
     }
 
-    private boolean hasLecturer(Lecturer lecturer) {
-        for (int i = 0; i < lecturerCount; i++) {
-            if (lecturers[i] == lecturer) return true;
-        }
-        return false;
+    private boolean hasLecturer(T lecturer) {
+        return lecturers.contains(lecturer);
     }
 
     public void updateHeadOfCommittee(Dr newHead) throws ManagementException, MemberAlreadyInCommitteeException {
@@ -53,16 +51,17 @@ public class Committee implements Cloneable, Serializable {
 
         Dr oldHead = headOfCommittee;
 
-        if (hasLecturer(newHead)) {
-            removeLecturer(newHead);
+        if (hasLecturer((T) newHead)) {
+            removeLecturer((T) newHead);
         }
 
         setHeadOfCommittee(newHead);
         oldHead.removeCommittee(this);
-        addLecturer(oldHead);
+
+        addLecturer((T) oldHead);
     }
 
-    public void addLecturer(Lecturer lecturer) throws MemberAlreadyInCommitteeException {
+    public void addLecturer(T lecturer) throws MemberAlreadyInCommitteeException {
         if (lecturer == headOfCommittee) {
             throw new MemberAlreadyInCommitteeException("- Lecturer is the head of committee and cannot be in members list.");
         }
@@ -70,20 +69,11 @@ public class Committee implements Cloneable, Serializable {
             throw new MemberAlreadyInCommitteeException("- Lecturer already part of committee.");
         }
 
-        if (lecturerCount == lecturers.length) {
-            Lecturer[] newLecturers = new Lecturer[lecturerCount * 2];
-            for (int i = 0; i < lecturerCount; i++) {
-                newLecturers[i] = lecturers[i];
-            }
-            lecturers = newLecturers;
-        }
-
-        lecturers[lecturerCount] = lecturer;
-        lecturerCount++;
+        lecturers.add(lecturer);
         lecturer.addCommittee(this);
     }
 
-    public void removeLecturer(Lecturer lecturer) throws ManagementException {
+    public void removeLecturer(T lecturer) throws ManagementException {
         if (lecturer == headOfCommittee) {
             throw new ManagementException("- Cannot remove the Head of Committee. Assign a new Head first.");
         }
@@ -91,20 +81,7 @@ public class Committee implements Cloneable, Serializable {
             throw new ManagementException("- Lecturer is not part of committee.");
         }
 
-        int indexToRemove = -1;
-        for (int i = 0; i < lecturerCount; i++) {
-            if (lecturers[i] == lecturer) {
-                indexToRemove = i;
-                break;
-            }
-        }
-
-        for (int i = indexToRemove; i < lecturerCount - 1; i++) {
-            lecturers[i] = lecturers[i + 1];
-        }
-        lecturers[lecturerCount - 1] = null;
-        lecturerCount--;
-
+        lecturers.remove(lecturer);
         lecturer.removeCommittee(this);
     }
 
@@ -112,10 +89,10 @@ public class Committee implements Cloneable, Serializable {
         String str = "Name: " + name + "\n" +
                 "   Head of committee: " + headOfCommittee.getName() + "\n";
 
-        if (lecturerCount > 0) {
+        if (!lecturers.isEmpty()) {
             str += "    Lecturers: \n";
-            for (int i = 0; i < lecturerCount; i++) {
-                str += "        " + lecturers[i].getName() + "\n";
+            for (T lecturer : lecturers) {
+                str += "        " + lecturer.getName() + "\n";
             }
         }
         return str;
@@ -125,21 +102,14 @@ public class Committee implements Cloneable, Serializable {
         if (!(obj instanceof Committee)) {
             return false;
         }
-        Committee other = (Committee) obj;
+        Committee<?> other = (Committee<?>) obj;
         return this.name.equals(other.name);
     }
 
-    public Committee clone() throws CloneNotSupportedException {
-        Committee cloned = (Committee) super.clone();
-
+    public Committee<T> clone() throws CloneNotSupportedException {
+        Committee<T> cloned = (Committee<T>) super.clone();
         cloned.name = "new-" + this.name;
-
-        cloned.lecturers = new Lecturer[this.lecturers.length];
-
-        for (int i = 0; i < this.lecturerCount; i++) {
-            cloned.lecturers[i] = this.lecturers[i];
-        }
-
+        cloned.lecturers = new ArrayList<>(this.lecturers);
         return cloned;
     }
 }
