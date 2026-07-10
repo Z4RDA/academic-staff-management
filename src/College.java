@@ -7,29 +7,29 @@ public class College implements Serializable {
     private ArrayList<Committee> committees = new ArrayList<>();
     private ArrayList<Department> departments = new ArrayList<>();
 
-    public College(String name) {
-        this.name = name;
+    public College(String name) throws ManagementException {
+        setName(name);
     }
 
+    private void setName(String name) throws ManagementException {
+        if (name.length() < 3) {
+            throw new ManagementException("- Name must be at least 3 characters long");
+        }
+        this.name = name;
+    }
     public String getName() {
         return name;
     }
 
     public void addLecturer(Lecturer lecturer) throws ManagementException {
-        if (lecturer.getName().length() < 3) {
-            throw new ManagementException("- Lecturer name is not valid, must be at least 3 letters.");
-        }
-
         if (getLecturerByName(lecturer.getName()) != null) {
             throw new ManagementException("- Lecturer already exists.");
         }
-
         for (Lecturer l : lecturers) {
             if (lecturer.getId() == l.getId()) {
                 throw new ManagementException("- ID already taken, must be unique.");
             }
         }
-
         lecturers.add(lecturer);
     }
 
@@ -100,11 +100,13 @@ public class College implements Serializable {
         }
 
         if (type == 1) {
-            committees.add(new Committee<Lecturer>(committeeName, (Dr) headOfCommittee));
+            committees.add(new Committee<Lecturer>(committeeName, (Dr) headOfCommittee, type));
         } else if (type == 2) {
-            committees.add(new Committee<Dr>(committeeName, (Dr) headOfCommittee));
+            committees.add(new Committee<Dr>(committeeName, (Dr) headOfCommittee, type));
         } else if (type == 3) {
-            committees.add(new Committee<Professor>(committeeName, (Dr) headOfCommittee));
+            committees.add(new Committee<Professor>(committeeName, (Dr) headOfCommittee, type));
+        } else {
+            throw new ManagementException("- Invalid committee type.");
         }
     }
 

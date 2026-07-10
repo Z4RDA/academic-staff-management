@@ -1,14 +1,13 @@
 import java.io.*;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 // Semyon Galitsky - 213863319
 // Dor Mendelovich - 214289613
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ManagementException {
         Scanner scanner = new Scanner(System.in);
         int choice, count, wage, id, title;
-        String lecturerName, degreeName, committeeName, departmentName;
+        String collegeName, lecturerName, degreeName, committeeName, departmentName;
 
         College college = null;
         File file = new File("college_data.dat");
@@ -39,18 +38,33 @@ public class Main {
                         inFile.close();
                         System.out.println("[Success] College data loaded successfully");
                         System.out.println("Initiating System for [" + college.getName() + "]...");
-                    } catch (FileNotFoundException e) {
-                        System.out.println("[Error] College data file not found");
-                    } catch (IOException e) {
-                        System.out.println("[Error] College data file could not be read");
-                    } catch (ClassNotFoundException e) {
-                        System.out.println("[Error] Class not found during deserialization");
+                    } catch (Exception e) {
+                        System.out.println("[Error] Could not load file: " + e.getMessage());
+                        while (true) {
+                            System.out.println("Please provide a new college name to start fresh: ");
+                            collegeName = scanner.nextLine();
+                            if (collegeName.length() < 3) {
+                                System.out.println("[Error] Name must be at least 3 characters long. Please try again.");
+                                continue;
+                            }
+                            break;
+                        }
+                        college = new College(collegeName);
+                        System.out.println("Starting system for: " + college.getName());
                     }
                     break;
                 case 2:
                     System.out.println("Initiating System...");
-                    System.out.println("Please provide the college name: ");
-                    college = new College(scanner.nextLine());
+                    while (true) {
+                        System.out.println("Please provide a new college name to start fresh: ");
+                        collegeName = scanner.nextLine();
+                        if (collegeName.length() < 3) {
+                            System.out.println("[Error] Name must be at least 3 characters long. Please try again.");
+                            continue;
+                        }
+                        break;
+                    }
+                    college = new College(collegeName);
                     System.out.println("Starting system for: " + college.getName());
                     break;
             }
@@ -83,10 +97,11 @@ public class Main {
             System.out.println("-----------------------------------------------------------------------------------");
             System.out.println("\nPlease select an action: ");
 
-            choice = scanner.nextInt();
-            scanner.nextLine(); // buffer
+            choice = -1;
 
             try {
+                choice = scanner.nextInt();
+                scanner.nextLine(); // buffer
                 switch (choice) {
                     case 0:
                         System.out.println("Exit selected, saving data.");
@@ -106,7 +121,7 @@ public class Main {
                         while (true) {
                             System.out.print("Please provide a name: ");
                             lecturerName = scanner.nextLine();
-                            if (lecturerName.length() >= 3) {
+                            if (lecturerName.length() >= 2) {
                                 break;
                             }
                             System.out.println("[Error] Name must be at least 3 characters long. Please try again.");
@@ -142,15 +157,22 @@ public class Main {
                             break;
                         }
 
-                        System.out.print("Please provide name of Degree: ");
-                        degreeName = scanner.nextLine();
+                        while (true) {
+                            System.out.print("Please provide name of Degree: ");
+                            degreeName = scanner.nextLine();
+                            if (degreeName.isEmpty()) {
+                                System.out.println("[Error] Degree name can't be empty.");
+                                continue;
+                            }
+                            break;
+                        }
 
                         while (true) {
                             System.out.print("Please provide wage: ");
                             wage = scanner.nextInt();
                             scanner.nextLine(); // buffer
 
-                            if (wage < 0) {
+                            if (wage < 1) {
                                 System.out.println("[Error] Wage must be positive.");
                                 continue;
                             }
@@ -163,9 +185,16 @@ public class Main {
                         } else if (title == 3) {
                             newLecturer = new Dr(lecturerName, id, degreeName, wage);
                         } else {
-                            System.out.print("Please provide awarding institution for the professor: ");
-                            String institution = scanner.nextLine();
-                            newLecturer = new Professor(lecturerName, id, degreeName, wage, institution);
+                            while (true) {
+                                System.out.print("Please provide awarding institution for the professor: ");
+                                String institution = scanner.nextLine();
+                                if (institution.length() < 3) {
+                                    System.out.println("[Error] Awarding institution must be at least 3 characters.");
+                                    continue;
+                                }
+                                newLecturer = new Professor(lecturerName, id, degreeName, wage, institution);
+                                break;
+                            }
                         }
 
                         college.addLecturer(newLecturer);

@@ -19,28 +19,29 @@ public class Lecturer implements Serializable {
         setWage(wage);
     }
 
-    public void setName(String name) {
+    private void setName(String name) throws ManagementException {
+        if (name.length() < 2) {
+            throw new ManagementException("Name must be at least 2 characters.");
+        }
         this.name = name;
     }
     public String getName() {
         return name;
     }
 
-    public void setId(int id) throws ManagementException {
-        if (id > 99999999 && id < 1000000000) {
-            this.id = id;
-        } else {
+    private void setId(int id) throws ManagementException {
+        if (id < 100000000 || id > 999999999) {
             throw new ManagementException("ID must contain exactly 9 digits.");
         }
+        this.id = id;
     }
     public int getId() { return id; }
 
     public void setWage(int wage) throws ManagementException {
-        if (wage >= 0) {
-            this.wage = wage;
-        } else {
+        if (wage < 1) {
             throw new ManagementException("Wage must be positive.");
         }
+        this.wage = wage;
     }
     public int getWage() { return wage; }
 
@@ -55,8 +56,12 @@ public class Lecturer implements Serializable {
     }
     public Title getTitle() { return degree; }
 
-    public void setDegreeName(String degreeName) {
+    public void setDegreeName(String degreeName) throws ManagementException {
+        if (degreeName.isEmpty()) {
+            throw new ManagementException("Degree name cant be empty");
+        }
         this.degreeName = degreeName;
+
     }
     public String getDegreeName() { return degreeName; }
 
@@ -69,14 +74,14 @@ public class Lecturer implements Serializable {
     public Department getDepartment() { return department; }
 
     public String toString() {
-        String str = "Name: " + name + "\n" +
-                "   Id: " + id + "\n" +
-                "   Wage: " + wage + "\n" +
-                "   Title: " + degree + "\n" +
-                "   Degree: " + degreeName + "\n";
+        String str = "Name: " + getName() + "\n" +
+                "   Id: " + getId() + "\n" +
+                "   Wage: " + getWage() + "\n" +
+                "   Title: " + getTitle() + "\n" +
+                "   Degree: " + getDegreeName() + "\n";
 
-        if (department != null) {
-            str += "    Department: " + department.getName() + "\n";
+        if (getDepartment() != null) {
+            str += "    Department: " + getDepartment().getName() + "\n";
         }
 
         if (!committees.isEmpty()) {

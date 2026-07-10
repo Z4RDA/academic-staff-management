@@ -11,7 +11,7 @@ public class Department implements Serializable {
         setStudentCount(studentCount);
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
     public String getName() {
@@ -53,7 +53,7 @@ public class Department implements Serializable {
 
     public String toString() {
         String str = "Name: " + name + "\n" +
-                "   Numbers of students: " + studentCount + "\n";
+                "   Numbers of students: " + getStudentCount() + "\n";
 
         if (!lecturers.isEmpty()) {
             str += "    Lecturers: \n";

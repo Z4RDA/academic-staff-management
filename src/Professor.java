@@ -8,10 +8,13 @@ public class Professor extends Dr implements Serializable {
 
         setTitle(4);
 
-        this.awardingInstitution = awardingInstitution;
+        setAwardingInstitution(awardingInstitution);
     }
 
-    public void setAwardingInstitution(String awardingInstitution) {
+    public void setAwardingInstitution(String awardingInstitution) throws ManagementException{
+        if (awardingInstitution.length() < 3) {
+            throw new ManagementException("Awarding institution must be aat least 3 characters");
+        }
         this.awardingInstitution = awardingInstitution;
     }
 
@@ -24,12 +27,12 @@ public class Professor extends Dr implements Serializable {
         if (!(obj instanceof Professor)) return false;
 
         Professor other = (Professor) obj;
-        return this.awardingInstitution.equals(other.awardingInstitution);
+        return getAwardingInstitution().equals(other.getAwardingInstitution());
     }
 
     public String toString() {
         String str = super.toString();
-        str += "    Awarding Institution: " + awardingInstitution + "\n";
+        str += "    Awarding Institution: " + getAwardingInstitution() + "\n";
         return str;
     }
 }

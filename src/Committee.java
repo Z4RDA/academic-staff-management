@@ -4,22 +4,28 @@ import java.util.ArrayList;
 public class Committee<T extends Lecturer> implements Cloneable, Serializable {
     private String name;
     private Dr headOfCommittee;
+    private int allowedType;
 
     private ArrayList<T> lecturers = new ArrayList<>();
 
-    public Committee(String name, Dr headOfCommittee) throws MemberAlreadyInCommitteeException {
+    public Committee(String name, Dr headOfCommittee, int allowedType) throws MemberAlreadyInCommitteeException {
         setName(name);
         setHeadOfCommittee(headOfCommittee);
+        setAllowedType(allowedType);
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
     public String getName() {
         return name;
     }
 
-    public void setHeadOfCommittee(Dr head) throws MemberAlreadyInCommitteeException {
+    private void setAllowedType(int allowedType) {
+        this.allowedType = allowedType;
+    }
+
+    private void setHeadOfCommittee(Dr head) throws MemberAlreadyInCommitteeException {
         this.headOfCommittee = head;
         this.headOfCommittee.addCommittee(this);
     }
@@ -57,16 +63,22 @@ public class Committee<T extends Lecturer> implements Cloneable, Serializable {
 
         setHeadOfCommittee(newHead);
         oldHead.removeCommittee(this);
-
-        addLecturer((T) oldHead);
     }
 
-    public void addLecturer(T lecturer) throws MemberAlreadyInCommitteeException {
+    public void addLecturer(T lecturer) throws MemberAlreadyInCommitteeException, ManagementException {
         if (lecturer == headOfCommittee) {
             throw new MemberAlreadyInCommitteeException("- Lecturer is the head of committee and cannot be in members list.");
         }
         if (hasLecturer(lecturer)) {
             throw new MemberAlreadyInCommitteeException("- Lecturer already part of committee.");
+        }
+
+        if (allowedType == 3 && !(lecturer instanceof Professor)) {
+            throw new ManagementException("- This committee is for Professors only.");
+        } else if (allowedType == 2 && !(lecturer instanceof Dr)) {
+            throw new ManagementException("- This committee is for Doctors only.");
+        } else if (allowedType == 1 && lecturer instanceof Dr) {
+            throw new ManagementException("- This committee is for regular degrees only (Bachelors/Masters).");
         }
 
         lecturers.add(lecturer);
@@ -87,7 +99,7 @@ public class Committee<T extends Lecturer> implements Cloneable, Serializable {
 
     public String toString() {
         String str = "Name: " + name + "\n" +
-                "   Head of committee: " + headOfCommittee.getName() + "\n";
+                "   Head of committee: " + getHeadOfCommittee().getName() + "\n";
 
         if (!lecturers.isEmpty()) {
             str += "    Lecturers: \n";
